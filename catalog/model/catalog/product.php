@@ -109,6 +109,10 @@ class Product extends \Opencart\System\Engine\Model {
 				$sql .= " LEFT JOIN `" . DB_PREFIX . "product_to_category` `p2c` ON (`p2c`.`category_id` = `c2s`.`category_id` AND `c2s`.`store_id` = '" . (int)$this->config->get('config_store_id') . "')";
 			}
 
+				if (!empty($data['filter_product_id'])) {
+					$sql .= " AND `p2c`.`product_id` = '" . (int)$data['filter_product_id'] . "'";
+				}
+
 			$sql .= " LEFT JOIN `" . DB_PREFIX . "product_to_store` `p2s` ON (`p2s`.`product_id` = `p2c`.`product_id` AND `p2s`.`store_id` = '" . (int)$this->config->get('config_store_id') . "')";
 
 			if (!empty($data['filter_filter'])) {
@@ -280,6 +284,10 @@ class Product extends \Opencart\System\Engine\Model {
 				$sql .= " LEFT JOIN `" . DB_PREFIX . "category_path` `cp` ON (`cp`.`category_id` = `c2s`.`category_id` AND `c2s`.`store_id` = '" . (int)$this->config->get('config_store_id') . "') LEFT JOIN `" . DB_PREFIX . "product_to_category` `p2c` ON (`p2c`.`category_id` = `cp`.`category_id`)";
 			} else {
 				$sql .= " LEFT JOIN `" . DB_PREFIX . "product_to_category` `p2c` ON (`p2c`.`category_id` = `c2s`.`category_id`)";
+			}
+
+			if (!empty($data['filter_product_id'])) {
+				$sql .= " AND `p2c`.`product_id` = '" . (int)$data['filter_product_id'] . "'";
 			}
 
 			$sql .= " LEFT JOIN `" . DB_PREFIX . "product_to_store` `p2s` ON (`p2s`.`product_id` = `p2c`.`product_id`)";

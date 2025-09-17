@@ -1,0 +1,314 @@
+{{ header }}{{ column_left }}
+<div id="content">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="float-end">
+				<button type="button" data-bs-toggle="tooltip" title="{{ button_filter }}" onclick="$('#filter-product').toggleClass('d-none');" class="btn btn-light d-lg-none">
+					<i class="fa-solid fa-filter"></i>
+				</button>
+				<a href="{{ add }}" data-bs-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary">
+					<i class="fa-solid fa-plus"></i>
+				</a>
+				<button type="submit" form="form-product" formaction="{{ copy }}" data-bs-toggle="tooltip" title="{{ button_copy }}" class="btn btn-light">
+					<i class="fa-regular fa-copy"></i>
+				</button>
+				<button type="submit" form="form-product" formaction="{{ delete }}" data-bs-toggle="tooltip" title="{{ button_delete }}" onclick="return confirm('{{ text_confirm }}');" class="btn btn-danger">
+					<i class="fa-regular fa-trash-can"></i>
+				</button>
+			</div>
+			<h1>{{ heading_title }}</h1>
+			<ol class="breadcrumb">
+				{% for breadcrumb in breadcrumbs %}
+					<li class="breadcrumb-item">
+						<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+					</li>
+				{% endfor %}
+			</ol>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col col-lg-12 col-md-12">
+				<div
+					class="card">
+					<!-- Filters Section -->
+					<div class="card mb-3">
+						<div class="card-header">
+							<i class="bi bi-funnel"></i>
+							Filters
+						</div>
+						<div class="card-body ">
+							<form id="form-filter" method="get" action="{{ filter_action }}">
+								<div class="row g-3">
+									<div class="col-md-3">
+										<label for="filter-product-id" class="form-label">Product ID</label>
+										<input type="text" name="filter_product_id" value="{{ filter_product_id }}" class="form-control" id="filter-product-id" placeholder="Product ID">
+									</div>
+
+									<div class="col-md-3">
+										<label for="filter-name" class="form-label">Name</label>
+										<input type="text" name="filter_name" value="{{ filter_name }}" class="form-control" id="filter-name" data-oc-target="autocomplete-name" class="form-control" autocomplete="off" placeholder="Name">
+										<ul id="autocomplete-name" class="dropdown-menu"></ul>
+									</div>
+									<div class="col-md-3">
+										<label for="filter-model" class="form-label">Model</label>
+										<input type="text" name="filter_model" value="{{ filter_model }}" data-oc-target="autocomplete-model" class="form-control" id="filter-model" autocomplete="off" placeholder="Model">
+										<ul id="autocomplete-model" class="dropdown-menu"></ul>
+									</div>
+									<div class="col-md-3">
+										<label for="filter-sku" class="form-label">SKU</label>
+										<input type="text" name="filter_sku" value="{{ filter_sku }}" class="form-control" id="filter-sku" placeholder="SKU">
+									</div>
+									<div class="col-md-3">
+										<label for="filter-category" class="form-label">Category</label>
+										<input type="text" name="filter_category" value="{{ filter_category }}" class="form-control" id="filter-category" placeholder="Category" data-oc-target="autocomplete-category" class="form-control" autocomplete="off">
+										<input type="hidden" name="filter_category_id" value="{{ filter_category_id }}" id="filter-category-id">
+										<ul id="autocomplete-category" class="dropdown-menu"></ul>
+									</div>
+									<div class="col-md-3">
+										<label for="filter-manufacturer" class="form-label">Manufacturer</label>
+										<input type="text" name="filter_manufacturer" value="{{ filter_manufacturer }}" class="form-control" id="filter-manufacturer" placeholder="Manufacturer" data-oc-target="autocomplete-manufacturer" class="form-control" autocomplete="off">
+										<input type="hidden" name="filter_manufacturer_id" value="{{ filter_manufacturer_id }}" id="filter-manufacturer-id">
+										<ul id="autocomplete-manufacturer" class="dropdown-menu"></ul>
+
+									</div>
+									<div class="col-md-3">
+										<label for="filter-price" class="form-label">Price</label>
+										<div class="d-flex">
+											<input type="text" name="filter_price_from" value="{{ filter_price_from }}" class="form-control me-2" id="filter-price-from" placeholder="From">
+											<label class="col-auto col-form-label px-0">
+												<i class="fa-solid fa-minus me-2"></i>
+											</label>
+											<input type="text" name="filter_price_to" value="{{ filter_price_to }}" class="form-control" id="filter-price-to" placeholder="To">
+										</div>
+									</div>
+									<div class="col-md-3">
+										<label for="filter-quantity" class="form-label">Quantity</label>
+										<div class="d-flex">
+											<input type="number" name="filter_quantity_from" value="{{ filter_quantity_from }}" class="form-control me-2" id="filter-quantity-from" placeholder="From">
+											<label class="col-auto col-form-label px-0">
+												<i class="fa-solid fa-minus me-2"></i>
+											</label>
+											<input type="number" name="filter_quantity_to" value="{{ filter_quantity_to }}" class="form-control" id="filter-quantity-to" placeholder="To">
+										</div>
+									</div>
+
+									<div class="col-md-3">
+										<label for="filter-status" class="form-label">Status</label>
+										<select name="filter_status" class="form-control" id="filter-status">
+											<option value="">{{ text_all }}</option>
+											<option value="1" {% if filter_status == '1' %} selected {% endif %}>Enabled</option>
+											<option value="0" {% if filter_status == '0' %} selected {% endif %}>Disabled</option>
+										</select>
+									</div>
+
+									<div class="col-md-4">
+										<label for="filter-date-added" class="form-label">Date Added</label>
+										<div class="d-flex">
+											<input type="date" name="filter_date_added_from" value="{{ filter_date_added_from }}" class="form-control me-2" id="filter-date-added-from" placeholder="From">
+											<label class="col-auto col-form-label px-0">
+												<i class="fa-solid fa-minus me-2"></i>
+											</label>
+											<input type="date" name="filter_date_added_to" value="{{ filter_date_added_to }}" class="form-control" id="filter-date-added-to" placeholder="To">
+										</div>
+									</div>
+
+									<div class="col-md-4">
+										<label for="filter-date-modified" class="form-label">Date Modified</label>
+										<div class="d-flex">
+											<input type="date" name="filter_date_modified_from" value="{{ filter_date_modified_from }}" class="form-control me-2" id="filter-date-modified-from" placeholder="From">
+											<label class="col-auto col-form-label px-0">
+												<i class="fa-solid fa-minus me-2"></i>
+											</label>
+											<input type="date" name="filter_date_modified_to" value="{{ filter_date_modified_to }}" class="form-control" id="filter-date-modified-to" placeholder="To">
+										</div>
+									</div>
+								</div>
+
+
+								<!-- Buttons -->
+								<div class="d-flex justify-content-between align-items-center mt-4">
+									<div>
+										<button type="button" id="button-clear" class="btn btn-info text-white me-2">
+											<i class="bi bi-x-circle"></i>
+											Clear
+										</button>
+										<button type="reset" class="btn btn-danger">
+											<i class="bi bi-arrow-counterclockwise"></i>
+											Reset
+										</button>
+									</div>
+									<button type="submit" class="btn btn-primary">
+										<i class="bi bi-funnel"></i>
+										Filter
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="card-header">
+						<i class="fa-solid fa-list"></i>
+						{{ text_list }}
+					</div>
+					<div class="card">
+						<div id="product" class="card-body">{{ list }}</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+ <script type="text/javascript"><!--
+	$('#product').on('click', 'thead a, .pagination a', function(e) {
+	    e.preventDefault();
+	
+	    $('#product').load(this.href);
+	});
+	
+	$('#button-clear').on('click', function() {
+		
+	    $('#filter-name').val('');
+	    $('#filter-model').val('');
+	    $('#filter-category').val('');
+	    $('#filter-category-id').val('');
+	    $('#filter-manufacturer').val('');
+	    $('#filter-manufacturer-id').val('');
+	    $('#filter-price-from').val('');
+	    $('#filter-price-to').val('');
+		$('#filter-sku').val('');
+	    $('#filter-quantity-from').val('');
+	    $('#filter-quantity-to').val('');
+	    $('#filter-status').val('');
+	});
+	
+	$('button[type="reset"]').on('click', function(e) {
+	    e.preventDefault();
+	    $('#form-filter')[0].reset();
+	    $('#filter-category-id').val('');
+	    $('#filter-manufacturer-id').val('');
+	    $('#form-filter').trigger('submit');
+	});
+	
+	$('#form-filter').on('submit', function(e) {
+    e.preventDefault();
+
+    // Clear hidden inputs if corresponding text inputs are empty
+    if ($('#filter-category').val() === '') {
+        $('#filter-category-id').val('');
+    }
+    if ($('#filter-manufacturer').val() === '') {
+        $('#filter-manufacturer-id').val('');
+    }
+
+    var action = $(this).attr('action');
+    var sep = action.indexOf('?') === -1 ? '?' : '&';
+    var url = action + sep + $(this).serialize();
+
+    $('#product').html('<div class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...</div>');
+    $('#product').load(url);
+});
+	
+	$('#filter-name').autocomplete({
+	    'source': function(request, response) {
+	        $.ajax({
+	            url: 'index.php?route=catalog/product.autocomplete&user_token={{ user_token }}&filter_name=' + encodeURIComponent(request),
+	            dataType: 'json',
+	            success: function(json) {
+	                response($.map(json, function(item) {
+	                    return {
+	                        label: item['name'],
+	                        value: item['product_id']
+	                    }
+	                }));
+	            }
+	        });
+	    },
+	    'select': function(item) {
+			$('#filter-name').val(decodeHTMLEntities(item['label']));
+		}
+	});
+	
+	$('#filter-model').autocomplete({
+	    'source': function(request, response) {
+	        $.ajax({
+	            url: 'index.php?route=catalog/product.autocomplete&user_token={{ user_token }}&filter_model=' + encodeURIComponent(request),
+	            dataType: 'json',
+	            success: function(json) {
+	                response($.map(json, function(item) {
+	                    return {
+	                        label: item['model'],
+	                        value: item['product_id']
+	                    }
+	                }));
+	            }
+	        });
+	    },
+	    'select': function(item) {
+			$('#filter-model').val(decodeHTMLEntities(item['label']));
+		}
+	});
+	
+	$('#filter-category').autocomplete({
+	    'source': function(request, response) {
+	        $.ajax({
+	            url: 'index.php?route=catalog/category.autocomplete&user_token={{ user_token }}&filter_name=' + encodeURIComponent(request),
+	            dataType: 'json',
+	            success: function(json) {
+	                json.unshift({
+	                    name: '{{ text_none }}',
+	                    category_id: '',
+	                });
+	
+	                response($.map(json, function(item) {
+	                    return {
+	                        label: item['name'],
+	                        value: item['category_id']
+	                    }
+	                }));
+	            }
+	        });
+	    },
+	    'select': function(item) {
+	        if (item['value']) {
+	            $('#filter-category').val(decodeHTMLEntities(item['label']));
+	            $('#filter-category-id').val(item['value']);
+	        } else {
+	            $('#filter-category').val('');
+	            $('#filter-category-id').val('');
+	        }
+	    }
+	});
+	
+	$('#filter-manufacturer').autocomplete({
+	    'source': function(request, response) {
+	        $.ajax({
+	            url: 'index.php?route=catalog/manufacturer.autocomplete&user_token={{ user_token }}&filter_name=' + encodeURIComponent(request),
+	            dataType: 'json',
+	            success: function(json) {
+	                json.unshift({
+	                    name: '{{ text_none }}',
+	                    manufacturer_id: '',
+	                });
+	
+	                response($.map(json, function(item) {
+	                    return {
+	                        label: item['name'],
+	                        value: item['manufacturer_id']
+	                    }
+	                }));
+	            }
+	        });
+	    },
+	    'select': function(item) {
+	        if (item['value']) {
+	            $('#filter-manufacturer').val(decodeHTMLEntities(item['label']));
+	            $('#filter-manufacturer-id').val(item['value']);
+	        } else {
+	            $('#filter-manufacturer').val('');
+	            $('#filter-manufacturer-id').val('');
+	        }
+	    }
+	});
+	--></script>
+{{ footer }}
