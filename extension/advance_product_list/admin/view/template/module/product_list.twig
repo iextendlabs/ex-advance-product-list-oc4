@@ -6,7 +6,6 @@
 		<table class="table table-bordered table-hover">
 			<thead>
 				<tr>
-					
 					<th class="text-center" style="width: 1px;"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', $(this).prop('checked'));" class="form-check-input"/></th>
 					<th class="text-center">{{ column_image }}</th>
 					<th>
@@ -17,13 +16,11 @@
 							{{ column_manufacturer }}
 						</a>
 					</th>
-
 					<th>
 						<a href="{{ sort_sku }}" {% if sort == 'p.sku' %} class="{{ order|lower }}" {% endif %}>
 							{{ column_sku }}
 						</a>
 					</th>
-
 					<th class="d-none d-lg-table-cell">
 						<a href="{{ sort_model }}" {% if sort == 'p.model' %} class="{{ order|lower }}" {% endif %}>{{ column_model }}</a>
 					</th>
@@ -35,7 +32,7 @@
 					</th>
 					<th class="text-center d-flex justify-content-around align-items-center" style="min-width: 120px;">
 						<a href="{{ sort_date_added }}" {% if sort == 'p.date_added' %} class="{{ order|lower }}" {% endif %}>A</a>
-						<span>Date Added</span>
+						<span>{{ column_date }}</span>
 						<a href="{{ sort_date_modified }}" {% if sort == 'p.date_modified' %} class="{{ order|lower }}" {% endif %}>M</a>
 					</th>
 					<th class="text-end">{{ column_action }}</th>
@@ -75,14 +72,14 @@
 									{{ product.date_added_formatted }}
 								</div>
 								<div class="mt-2 border border-info bg-info p-1 fs-6 text-center" data-original-title="{{ product.date_modified_formatted }}">
-									{{ product.date_modified_formatted }}
-								</div>
+									{{ product.date_modified_formatted }}</div>
+							</td>
 							<td class="text-end">
 								{% if product.variant %}
 
-								<a href="{{ product.view }}" target="_blank"  class="btn btn-default border border-1 ms-1">
-									<i class="fa fa-eye"></i>
-								</a>
+									<a href="{{ product.view }}" target="_blank" class="btn btn-default border border-1 ms-1">
+										<i class="fa fa-eye"></i>
+									</a>
 									<div class="btn-group">
 										<a href="{{ product.edit }}" data-bs-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary">
 											<i class="fa-solid fa-pencil"></i>

@@ -35,45 +35,44 @@
 					<div class="card mb-3">
 						<div class="card-header">
 							<i class="bi bi-funnel"></i>
-							Filters
+							{{ entry_filter }}
 						</div>
 						<div class="card-body ">
 							<form id="form-filter" method="get" action="{{ filter_action }}">
 								<div class="row g-3">
 									<div class="col-md-3">
-										<label for="filter-product-id" class="form-label">Product ID</label>
-										<input type="text" name="filter_product_id" value="{{ filter_product_id }}" class="form-control" id="filter-product-id" placeholder="Product ID">
+										<label for="filter-product-id" class="form-label">{{ entry_product_id }}</label>
+										<input type="text" name="filter_product_id" value="{{ filter_product_id }}" class="form-control" id="filter-product-id" placeholder="{{ entry_product_id }}">
 									</div>
 
 									<div class="col-md-3">
-										<label for="filter-name" class="form-label">Name</label>
-										<input type="text" name="filter_name" value="{{ filter_name }}" class="form-control" id="filter-name" data-oc-target="autocomplete-name" class="form-control" autocomplete="off" placeholder="Name">
+										<label for="filter-name" class="form-label">{{ entry_name }}</label>
+										<input type="text" name="filter_name" value="{{ filter_name }}" class="form-control" id="filter-name" data-oc-target="autocomplete-name" class="form-control" autocomplete="off" placeholder="{{ entry_name }}">
 										<ul id="autocomplete-name" class="dropdown-menu"></ul>
 									</div>
 									<div class="col-md-3">
-										<label for="filter-model" class="form-label">Model</label>
-										<input type="text" name="filter_model" value="{{ filter_model }}" data-oc-target="autocomplete-model" class="form-control" id="filter-model" autocomplete="off" placeholder="Model">
+										<label for="filter-model" class="form-label">{{ entry_model }}</label>
+										<input type="text" name="filter_model" value="{{ filter_model }}" data-oc-target="autocomplete-model" class="form-control" id="filter-model" autocomplete="off" placeholder="{{ entry_model }}">
 										<ul id="autocomplete-model" class="dropdown-menu"></ul>
 									</div>
 									<div class="col-md-3">
-										<label for="filter-sku" class="form-label">SKU</label>
-										<input type="text" name="filter_sku" value="{{ filter_sku }}" class="form-control" id="filter-sku" placeholder="SKU">
+										<label for="filter-sku" class="form-label">{{ entry_sku }}</label>
+										<input type="text" name="filter_sku" value="{{ filter_sku }}" class="form-control" id="filter-sku" placeholder="{{ entry_sku }}">
 									</div>
 									<div class="col-md-3">
-										<label for="filter-category" class="form-label">Category</label>
-										<input type="text" name="filter_category" value="{{ filter_category }}" class="form-control" id="filter-category" placeholder="Category" data-oc-target="autocomplete-category" class="form-control" autocomplete="off">
+										<label for="filter-category" class="form-label">{{ entry_category }}</label>
+										<input type="text" name="filter_category" value="{{ filter_category }}" class="form-control" id="filter-category" placeholder="{{ entry_category }}" data-oc-target="autocomplete-category" class="form-control" autocomplete="off">
 										<input type="hidden" name="filter_category_id" value="{{ filter_category_id }}" id="filter-category-id">
 										<ul id="autocomplete-category" class="dropdown-menu"></ul>
 									</div>
 									<div class="col-md-3">
-										<label for="filter-manufacturer" class="form-label">Manufacturer</label>
-										<input type="text" name="filter_manufacturer" value="{{ filter_manufacturer }}" class="form-control" id="filter-manufacturer" placeholder="Manufacturer" data-oc-target="autocomplete-manufacturer" class="form-control" autocomplete="off">
+										<label for="filter-manufacturer" class="form-label">{{ entry_manufacturer }}</label>
+										<input type="text" name="filter_manufacturer" value="{{ filter_manufacturer }}" class="form-control" id="filter-manufacturer" placeholder="{{ entry_manufacturer }}" data-oc-target="autocomplete-manufacturer" class="form-control" autocomplete="off">
 										<input type="hidden" name="filter_manufacturer_id" value="{{ filter_manufacturer_id }}" id="filter-manufacturer-id">
 										<ul id="autocomplete-manufacturer" class="dropdown-menu"></ul>
-
 									</div>
 									<div class="col-md-3">
-										<label for="filter-price" class="form-label">Price</label>
+										<label for="filter-price" class="form-label">{{ entry_price }}</label>
 										<div class="d-flex">
 											<input type="text" name="filter_price_from" value="{{ filter_price_from }}" class="form-control me-2" id="filter-price-from" placeholder="From">
 											<label class="col-auto col-form-label px-0">
@@ -83,7 +82,7 @@
 										</div>
 									</div>
 									<div class="col-md-3">
-										<label for="filter-quantity" class="form-label">Quantity</label>
+										<label for="filter-quantity" class="form-label">{{ entry_quantity }}</label>
 										<div class="d-flex">
 											<input type="number" name="filter_quantity_from" value="{{ filter_quantity_from }}" class="form-control me-2" id="filter-quantity-from" placeholder="From">
 											<label class="col-auto col-form-label px-0">
@@ -94,16 +93,16 @@
 									</div>
 
 									<div class="col-md-3">
-										<label for="filter-status" class="form-label">Status</label>
+										<label for="filter-status" class="form-label">{{ entry_status }}</label>
 										<select name="filter_status" class="form-control" id="filter-status">
 											<option value="">{{ text_all }}</option>
-											<option value="1" {% if filter_status == '1' %} selected {% endif %}>Enabled</option>
-											<option value="0" {% if filter_status == '0' %} selected {% endif %}>Disabled</option>
+											<option value="1" {% if filter_status == '1' %} selected {% endif %}>{{ text_enabled }}</option>
+											<option value="0" {% if filter_status == '0' %} selected {% endif %}>{{ text_disabled }}</option>
 										</select>
 									</div>
 
 									<div class="col-md-4">
-										<label for="filter-date-added" class="form-label">Date Added</label>
+										<label for="filter-date-added" class="form-label">{{ entry_date_added }}</label>
 										<div class="d-flex">
 											<input type="date" name="filter_date_added_from" value="{{ filter_date_added_from }}" class="form-control me-2" id="filter-date-added-from" placeholder="From">
 											<label class="col-auto col-form-label px-0">
@@ -114,7 +113,7 @@
 									</div>
 
 									<div class="col-md-4">
-										<label for="filter-date-modified" class="form-label">Date Modified</label>
+										<label for="filter-date-modified" class="form-label">{{ entry_date_modified }}</label>
 										<div class="d-flex">
 											<input type="date" name="filter_date_modified_from" value="{{ filter_date_modified_from }}" class="form-control me-2" id="filter-date-modified-from" placeholder="From">
 											<label class="col-auto col-form-label px-0">
@@ -125,22 +124,20 @@
 									</div>
 								</div>
 
-
-								<!-- Buttons -->
 								<div class="d-flex justify-content-between align-items-center mt-4">
 									<div>
 										<button type="button" id="button-clear" class="btn btn-info text-white me-2">
 											<i class="bi bi-x-circle"></i>
-											Clear
+											{{ button_clear }}
 										</button>
 										<button type="reset" class="btn btn-danger">
 											<i class="bi bi-arrow-counterclockwise"></i>
-											Reset
+											{{ button_reset }}
 										</button>
 									</div>
 									<button type="submit" class="btn btn-primary">
 										<i class="bi bi-funnel"></i>
-										Filter
+										{{ button_filter }}
 									</button>
 								</div>
 							</form>
@@ -193,8 +190,8 @@
 	$('#form-filter').on('submit', function(e) {
     e.preventDefault();
 
-    // Clear hidden inputs if corresponding text inputs are empty
-    if ($('#filter-category').val() === '') {
+
+	if ($('#filter-category').val() === '') {
         $('#filter-category-id').val('');
     }
     if ($('#filter-manufacturer').val() === '') {

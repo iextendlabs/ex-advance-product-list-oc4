@@ -49,8 +49,6 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 
 		$data['list'] = $this->load->controller('extension/advance_product_list/module/advance_product_list.productList');
 
-
-
 		$data['action'] = $this->url->link('extension/advance_product_list/module/advance_product_list.save', 'user_token=' . $this->session->data['user_token']);
 		$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module');
 
@@ -76,7 +74,7 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 		} else {
 			$filter_product_id = '';
 		}
-		
+
 
 		if (isset($this->request->get['filter_model'])) {
 			$filter_model = $this->request->get['filter_model'];
@@ -95,7 +93,7 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 		} else {
 			$filter_manufacturer_id = '';
 		}
-		
+
 		if (isset($this->request->get['filter_price_from'])) {
 			$filter_price_from = $this->request->get['filter_price_from'];
 		} else {
@@ -120,7 +118,6 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 			$filter_quantity_to = '';
 		}
 
-		// New date filters
 		if (isset($this->request->get['filter_date_added_from'])) {
 			$filter_date_added_from = $this->request->get['filter_date_added_from'];
 		} else {
@@ -160,7 +157,7 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 		$this->document->setTitle($this->language->get('heading_title'));
 
 		$url = '';
-		
+
 
 		if (isset($this->request->get['filter_name'])) {
 			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
@@ -203,7 +200,6 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 			$url .= '&filter_quantity_to=' . $this->request->get['filter_quantity_to'];
 		}
 
-		// Add new date filters to URL
 		if (isset($this->request->get['filter_date_added_from'])) {
 			$url .= '&filter_date_added_from=' . $this->request->get['filter_date_added_from'];
 		}
@@ -338,7 +334,6 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 			return $this->load->view('extension/advance_product_list/module/product_list', $data);
 		}
 
-		
 
 		if (isset($this->request->get['filter_name'])) {
 			$filter_name = $this->request->get['filter_name'];
@@ -394,7 +389,6 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 			$filter_quantity_to = '';
 		}
 
-		// New date filters
 		if (isset($this->request->get['filter_date_added_from'])) {
 			$filter_date_added_from = $this->request->get['filter_date_added_from'];
 		} else {
@@ -451,7 +445,6 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 
 		$url = '';
 
-		
 
 		if (isset($this->request->get['filter_name'])) {
 			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
@@ -489,9 +482,6 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 			$url .= '&filter_quantity_to=' . $this->request->get['filter_quantity_to'];
 		}
 
-
-
-		// Add new date filters to URL
 		if (isset($this->request->get['filter_date_added_from'])) {
 			$url .= '&filter_date_added_from=' . $this->request->get['filter_date_added_from'];
 		}
@@ -537,7 +527,6 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 			'filter_quantity_from'   => $filter_quantity_from,
 			'filter_quantity_to'     => $filter_quantity_to,
 			'filter_status'          => $filter_status,
-			// New date filters
 			'filter_date_added_from' => $filter_date_added_from,
 			'filter_date_added_to' => $filter_date_added_to,
 			'filter_date_modified_from' => $filter_date_modified_from,
@@ -592,7 +581,6 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 
 		$url = '';
 
-		
 
 		if (isset($this->request->get['filter_name'])) {
 			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
@@ -643,7 +631,7 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 			$url .= '&filter_date_modified_to=' . $this->request->get['filter_date_modified_to'];
 		}
 
-		if(isset($this->request->get['filter_sku'])) {
+		if (isset($this->request->get['filter_sku'])) {
 			$url .= '&filter_sku=' . urlencode(html_entity_decode($this->request->get['filter_sku'], ENT_QUOTES, 'UTF-8'));
 		}
 
@@ -668,8 +656,6 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 		$data['sort_date_modified'] = $this->url->link('extension/advance_product_list/module/advance_product_list.list', 'user_token=' . $this->session->data['user_token'] . '&sort=p.date_modified' . $url);
 
 		$url = '';
-
-		
 
 		if (isset($this->request->get['filter_name'])) {
 			$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
