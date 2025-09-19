@@ -537,12 +537,12 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 			'limit'                  => $this->config->get('config_pagination_admin')
 		];
 
-		$this->load->model('catalog/product');
+		$this->load->model('extension/AdvanceProductList/module/AdvanceProductList');
 
 		// Image
 		$this->load->model('tool/image');
 
-		$results = $this->model_catalog_product->getProducts($filter_data);
+		$results = $this->model_extension_AdvanceProductList_module_AdvanceProductList->getProducts($filter_data);
 
 		foreach ($results as $result) {
 			if ($result['image'] && is_file(DIR_IMAGE . html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'))) {
@@ -553,7 +553,7 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 
 			$special = '';
 
-			$product_discounts = $this->model_catalog_product->getDiscounts($result['product_id']);
+			$product_discounts = $this->model_extension_AdvanceProductList_module_AdvanceProductList->getDiscounts($result['product_id']);
 
 			foreach ($product_discounts as $product_discount) {
 				if (($product_discount['date_start'] == '0000-00-00' || strtotime($product_discount['date_start']) < time()) && ($product_discount['date_end'] == '0000-00-00' || strtotime($product_discount['date_end']) > time())) {
@@ -722,7 +722,7 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 			$url .= '&order=' . $this->request->get['order'];
 		}
 
-		$product_total = $this->model_catalog_product->getTotalProducts($filter_data);
+		$product_total = $this->model_extension_AdvanceProductList_module_AdvanceProductList->getTotalProducts($filter_data);
 
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $product_total,
