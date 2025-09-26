@@ -334,7 +334,6 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 			return $this->load->view('extension/advance_product_list/module/product_list', $data);
 		}
 
-
 		if (isset($this->request->get['filter_name'])) {
 			$filter_name = $this->request->get['filter_name'];
 		} else {
@@ -733,6 +732,8 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 
 		$data['results'] = sprintf($this->language->get('text_pagination'), ($product_total) ? (($page - 1) * $this->config->get('config_pagination_admin')) + 1 : 0, ((($page - 1) * $this->config->get('config_pagination_admin')) > ($product_total - $this->config->get('config_pagination_admin'))) ? $product_total : ((($page - 1) * $this->config->get('config_pagination_admin')) + $this->config->get('config_pagination_admin')), $product_total, ceil($product_total / $this->config->get('config_pagination_admin')));
 
+		$data['user_token'] = $this->session->data['user_token'];
+
 		$data['sort'] = $sort;
 		$data['order'] = $order;
 
@@ -753,5 +754,35 @@ class AdvanceProductList extends \Opencart\System\Engine\Controller
 				$this->url->link('extension/advance_product_list/module/advance_product_list', 'user_token=' . $this->session->data['user_token'])
 			);
 		}
+	}
+
+	public function inlineEdit(): void
+	{
+		$this->load->language('extension/advance_product_list/module/product');
+		$json = [];
+
+		if ($this->request->server['REQUEST_METHOD'] === 'POST') {
+			$data = json_decode(file_get_contents('php://input'), true) ?: [];
+
+			$product_id = (int)($data['id'] ?? 0);
+			$field      = $data['field'] ?? '';
+			$value      = $data['value'] ?? '';
+			$special    = $data['special'] ?? '';
+
+			if ($product_id <= 0 || !$field) {
+				$json['error'] = 'Invalid input';
+			} else {
+				$this->load->model('extension/advance_product_list/module/advance_product_list');
+				$result = $this->model_extension_advance_product_list_module_advance_product_list
+					->inlineEdit($product_id, $field, $value, $special);
+
+				$json[$result ? 'success' : 'error'] = $result ? true : 'DB update failed';
+			}
+		} else {
+			$json['error'] = 'Invalid request method';
+		}
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
 	}
 }

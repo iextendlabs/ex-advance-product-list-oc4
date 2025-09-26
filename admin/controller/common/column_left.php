@@ -48,6 +48,15 @@ class ColumnLeft extends \Opencart\System\Engine\Controller {
 				];
 			}
 
+			// extension addvance product list
+			if ($this->user->hasPermission('access', 'catalog/product')) {
+				$catalog[] = [
+					'name'     => $this->language->get('text_advance_product_list'),
+					'href'     => $this->url->link('extension/advance_product_list/module/advance_product_list.productList', 'user_token=' . $this->session->data['user_token']),
+					'children' => []
+				];
+			}
+
 			if ($this->user->hasPermission('access', 'catalog/subscription_plan')) {
 				$catalog[] = [
 					'name'     => $this->language->get('text_subscription_plan'),

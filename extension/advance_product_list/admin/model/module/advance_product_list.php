@@ -7,7 +7,8 @@ namespace Opencart\Admin\Model\Extension\AdvanceProductList\Module;
  *
  * @package Opencart\Admin\Model\Extension\AdvanceProductList\Module
  */
-class AdvanceProductList extends \Opencart\System\Engine\Model {
+class AdvanceProductList extends \Opencart\System\Engine\Model
+{
 	public function getDiscounts(int $product_id): array
 	{
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "product_discount` WHERE `product_id` = '" . (int)$product_id . "' ORDER BY `quantity`, `priority`, `price`");
@@ -18,7 +19,6 @@ class AdvanceProductList extends \Opencart\System\Engine\Model {
 	public function getProducts(array $data = []): array
 	{
 
-		//  add  m.name AS manufacturer_name  and  LEFT JOIN `" . DB_PREFIX . "manufacturer` m ON (p.manufacturer_id = m.manufacturer_id)";
 		$sql = "SELECT p.*, pd.name, m.name AS manufacturer_name 
             FROM `" . DB_PREFIX . "product` p 
             LEFT JOIN `" . DB_PREFIX . "product_description` pd ON (p.product_id = pd.product_id)
@@ -50,32 +50,32 @@ class AdvanceProductList extends \Opencart\System\Engine\Model {
 			$sql .= " AND `p`.`manufacturer_id` = '" . (int)$data['filter_manufacturer_id'] . "'";
 		}
 
-		if(isset($data['filter_product_id']) && $data['filter_product_id'] !== '') {
+		if (isset($data['filter_product_id']) && $data['filter_product_id'] !== '') {
 			$sql .= " AND `p`.`product_id` = '" . (int)$data['filter_product_id'] . "'";
 		}
 
-		if(isset($data['filter_sku']) && $data['filter_sku'] !== '') {
+		if (isset($data['filter_sku']) && $data['filter_sku'] !== '') {
 			$sql .= " AND LCASE(`p`.`sku`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_sku']) . '%') . "'";
 		}
-		
-		if(isset($data['filter_date_added_from']) && $data['filter_date_added_from'] !== '') {
+
+		if (isset($data['filter_date_added_from']) && $data['filter_date_added_from'] !== '') {
 			$sql .= " AND DATE(`p`.`date_added`) >= '" . $this->db->escape($data['filter_date_added_from']) . "'";
 		}
 
-		if(isset($data['filter_date_added_to']) && $data['filter_date_added_to'] !== '') {
+		if (isset($data['filter_date_added_to']) && $data['filter_date_added_to'] !== '') {
 			$sql .= " AND DATE(`p`.`date_added`) <= '" . $this->db->escape($data['filter_date_added_to']) . "'";
 		}
 
-		if(isset($data['filter_date_modified_from']) && $data['filter_date_modified_from'] !== '') {
+		if (isset($data['filter_date_modified_from']) && $data['filter_date_modified_from'] !== '') {
 			$sql .= " AND DATE(`p`.`date_modified`) >= '" . $this->db->escape($data['filter_date_modified_from']) . "'";
 		}
 
-		if(isset($data['filter_date_modified_to']) && $data['filter_date_modified_to'] !== '') {
+		if (isset($data['filter_date_modified_to']) && $data['filter_date_modified_to'] !== '') {
 			$sql .= " AND DATE(`p`.`date_modified`) <= '" . $this->db->escape($data['filter_date_modified_to']) . "'";
 		}
 
-		
-		
+
+
 
 		if (isset($data['filter_price_from']) && $data['filter_price_from'] !== '') {
 			$sql .= " AND `p`.`price` >= '" . (float)$data['filter_price_from'] . "'";
@@ -176,27 +176,27 @@ class AdvanceProductList extends \Opencart\System\Engine\Model {
 			$sql .= " AND `p`.`product_id` IN (SELECT `p2c`.`product_id` FROM `" . DB_PREFIX . "product_to_category` `p2c` WHERE `p2c`.`category_id` = '" . (int)$data['filter_category_id'] . "')";
 		}
 
-		if(isset($data['filter_product_id']) && $data['filter_product_id'] !== '') {
+		if (isset($data['filter_product_id']) && $data['filter_product_id'] !== '') {
 			$sql .= " AND `p`.`product_id` = '" . (int)$data['filter_product_id'] . "'";
 		}
 
-		if(isset($data['filter_sku']) && $data['filter_sku'] !== '') {
+		if (isset($data['filter_sku']) && $data['filter_sku'] !== '') {
 			$sql .= " AND LCASE(`p`.`sku`) LIKE '" . $this->db->escape(oc_strtolower($data['filter_sku']) . '%') . "'";
 		}
-		
-		if(isset($data['filter_date_added_from']) && $data['filter_date_added_from'] !== '') {
+
+		if (isset($data['filter_date_added_from']) && $data['filter_date_added_from'] !== '') {
 			$sql .= " AND DATE(`p`.`date_added`) >= '" . $this->db->escape($data['filter_date_added_from']) . "'";
 		}
 
-		if(isset($data['filter_date_added_to']) && $data['filter_date_added_to'] !== '') {
+		if (isset($data['filter_date_added_to']) && $data['filter_date_added_to'] !== '') {
 			$sql .= " AND DATE(`p`.`date_added`) <= '" . $this->db->escape($data['filter_date_added_to']) . "'";
 		}
 
-		if(isset($data['filter_date_modified_from']) && $data['filter_date_modified_from'] !== '') {
+		if (isset($data['filter_date_modified_from']) && $data['filter_date_modified_from'] !== '') {
 			$sql .= " AND DATE(`p`.`date_modified`) >= '" . $this->db->escape($data['filter_date_modified_from']) . "'";
 		}
 
-		if(isset($data['filter_date_modified_to']) && $data['filter_date_modified_to'] !== '') {
+		if (isset($data['filter_date_modified_to']) && $data['filter_date_modified_to'] !== '') {
 			$sql .= " AND DATE(`p`.`date_modified`) <= '" . $this->db->escape($data['filter_date_modified_to']) . "'";
 		}
 
@@ -228,4 +228,49 @@ class AdvanceProductList extends \Opencart\System\Engine\Model {
 
 		return (int)$query->row['total'];
 	}
+	public function inlineEdit(int $product_id, string $field, $value, $special = ''): bool {
+	$allowed = ['name', 'sku', 'model', 'price', 'quantity', 'manufacturer_id', 'image', 'date'];
+		if (!in_array($field, $allowed)) return false;
+
+    if ($field === 'name') {
+        $this->db->query("UPDATE `" . DB_PREFIX . "product_description` 
+            SET `name` = '" . $this->db->escape($value) . "'  WHERE `product_id` = '" . (int)$product_id . "'");
+    } elseif ($field === 'image') {
+        $this->db->query("UPDATE `" . DB_PREFIX . "product` 
+            SET `image` = '" . $this->db->escape($value) . "' 
+            WHERE `product_id` = '" . (int)$product_id . "'");
+    } elseif ($field === 'manufacturer_id') {
+        $this->db->query("UPDATE `" . DB_PREFIX . "product` 
+            SET `manufacturer_id` = '" . (int)$value . "'  WHERE `product_id` = '" . (int)$product_id . "'");
+    } elseif ($field === 'price') {
+        $price = (float)$value;
+        $this->db->query("UPDATE `" . DB_PREFIX . "product` 
+             SET `price` = '" . $price . "'   WHERE `product_id` = '" . (int)$product_id . "'");
+
+        $this->db->query("DELETE FROM `" . DB_PREFIX . "product_discount` 
+                WHERE `product_id` = '" . (int)$product_id . "'");
+
+        if ($special !== '' && is_numeric($special) && (float)$special > 0) {
+            $this->db->query("INSERT INTO `" . DB_PREFIX . "product_discount`
+            SET `product_id` = '" . (int)$product_id . "',
+                `customer_group_id` = 1,
+                `quantity` = 1,
+                `priority` = 1,
+                `price` = '" . (float)$special . "',
+                `type` = 'fixed',
+                `date_start` = '0000-00-00',
+                `date_end` = '0000-00-00'");
+        }
+    } elseif ($field === 'date') {
+        if (!is_array($value) || !isset($value['date_added']) || !isset($value['date_modified'])) return false;
+        $date_added = $this->db->escape($value['date_added']);
+        $date_modified = $this->db->escape($value['date_modified']);
+        $this->db->query("UPDATE `" . DB_PREFIX . "product` SET `date_added` = '" . $date_added . "', `date_modified` = '" . $date_modified . "' WHERE `product_id` = '" . (int)$product_id . "'");
+    } else {
+        $this->db->query("UPDATE `" . DB_PREFIX . "product`
+           SET `" . $this->db->escape($field) . "` = '" . $this->db->escape($value) . "'  WHERE `product_id` = '" . (int)$product_id . "'");
+    }
+        return true;
+  }
+
 }

@@ -1,5 +1,7 @@
 <?php
 // Text
+// extension advance product list   $_['text_advance_product_list']
+$_['text_advance_product_list']                = 'Advance product list';
 $_['text_address_format']      = 'Address Format';
 $_['text_affiliate']           = 'Affiliate';
 $_['text_api']                 = 'API';

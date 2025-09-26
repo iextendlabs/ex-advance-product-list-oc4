@@ -43,12 +43,17 @@
 					{% for product in products %}
 						<tr class="{% if not product.variant %}table-warning{% endif %} {% if not product.status %}opacity-50{% endif %}">
 							<td class="text-center"><input type="checkbox" name="selected[]" value="{{ product.product_id }}" class="form-check-input"/></td>
-							<td class="text-center"><img src="{{ product.image }}" alt="{{ product.name }}" class="img-thumbnail"/></td>
-							<td>{{ product.name }}</td>
-							<td>{{ product.manufacturer_name  }}</td>
-							<td>{{ product.sku  }}</td>
-							<td class="d-none d-lg-table-cell">{{ product.model }}</td>
-							<td class="text-end">
+							<td class="text-center editable"
+								data-field="image"
+								data-id="{{ product.product_id }}"
+								data-image="{{ product.image_path }}">
+								<img src="{{ product.image }}" alt="{{ product.name }}" class="img-thumbnail" style="max-width:50px;">
+							</td>
+							<td class="editable" data-field="name" data-id="{{ product.product_id }}">{{ product.name }}</td>
+							<td class="editable" data-field="manufacturer_id" data-id="{{ product.product_id }}">{{ product.manufacturer_name }}</td>
+							<td class="editable" data-field="sku" data-id="{{ product.product_id }}">{{ product.sku }}</td>
+							<td class="editable d-none d-lg-table-cell" data-field="model" data-id="{{ product.product_id }}">{{ product.model }}</td>
+							<td class="editable text-end" data-field="price" data-id="{{ product.product_id }}">
 								{% if product.special %}
 									<span style="text-decoration: line-through;">{{ product.price }}</span>
 									<br/>
@@ -57,8 +62,7 @@
 									{{ product.price }}
 								{% endif %}
 							</td>
-
-							<td class="text-end">
+							<td class="editable text-end" data-field="quantity" data-id="{{ product.product_id }}">
 								{% if product.quantity <= 0 %}
 									<span class="badge bg-warning">{{ product.quantity }}</span>
 								{% elseif product.quantity <= 5 %}
@@ -67,7 +71,7 @@
 									<span class="badge bg-success">{{ product.quantity }}</span>
 								{% endif %}
 							</td>
-							<td class="text-left">
+							<td class="text-left editable" data-field="date" data-id="{{ product.product_id }}" data-date-added="{{ product.date_added }}" data-date-modified="{{ product.date_modified }}" data-date-added-formatted="{{ product.date_added_formatted }}" data-date-modified-formatted="{{ product.date_modified_formatted }}">
 								<div class="p-1 fs-6 text-center" style="background: #f8f8f8;" data-original-title="{{ product.date_added_formatted }}">
 									{{ product.date_added_formatted }}
 								</div>
@@ -114,3 +118,575 @@
 		<div class="col-sm-6 text-end">{{ results }}</div>
 	</div>
 </form>
+
+{% block scripts %}
+<script>
+	$(function () {
+		const editUrl = 'index.php?route=extension/advance_product_list/module/advance_product_list.inlineEdit&user_token={{ user_token }}';
+
+		$('td.editable').on('dblclick', function () {
+			const $el = $(this);
+			if ($el.find('input').length) return;
+
+			const field = $el.data('field');
+			const id = $el.data('id');
+			const oldValue = $.trim($el.text());
+
+			if (field === 'price') {
+				handlePriceEdit($el, id, oldValue);
+			} else if (field === 'manufacturer_id') {
+				handleManufacturerEdit($el, id, oldValue);
+			} else if (field === 'image') {
+				handleImageEdit($el, id, oldValue);
+			} else if (field === 'date') {
+				handleDateEdit($el, id);
+			} else {
+				handleGenericEdit($el, id, field, oldValue);
+			}
+		});
+
+		function handleImageEdit($el, id) {
+			const currentImagePath = $el.data('image') || ''; 
+
+			const currentThumbUrl = $el.find('img').attr('src') || '{{ placeholder }}';
+
+			const inputId = 'inline_image_input_' + id;
+			const thumbId = 'inline_thumb_' + id;
+			const anchorId = 'inline_anchor_' + id;
+
+			$el.html(`
+				<a href="#" id="${anchorId}" data-oc-toggle="image" data-oc-target="#${inputId}" data-oc-thumb="#${thumbId}">
+					<img src="${currentThumbUrl}" id="${thumbId}" class="img-thumbnail" style="max-width:50px;" />
+				</a>
+				<input type="hidden" id="${inputId}" value="${currentImagePath}" />
+			`);
+
+			const $input = $('#' + inputId);
+			const $thumb = $('#' + thumbId);
+
+			function finalizeImage() {
+				const newImagePath = $input.val(); 
+				
+				if (newImagePath === currentImagePath) {
+					$el.html(`<img src="${currentThumbUrl}" alt="" class="img-thumbnail" style="max-width:50px;">`);
+					$el.data('image', currentImagePath);
+					return;
+				}
+
+				if (!newImagePath || newImagePath.trim() === '') {
+					alert('No image selected');
+					$el.html(`<img src="${currentThumbUrl}" alt="" class="img-thumbnail" style="max-width:50px;">`);
+					$el.data('image', currentImagePath);
+					return;
+				}
+
+			const imageUrl = 'index.php?route=common/filemanager/image&image=' + encodeURIComponent(newImagePath);
+
+				$.ajax({
+					url: editUrl,
+					method: 'POST',
+					contentType: 'application/json',
+					data: JSON.stringify({ id, field: 'image', value: newImagePath }),
+					success: function (res) {
+						if (res.success) {
+							$el.data('image', newImagePath);
+							$el.html(`<img src="${newThumbUrl}" alt="" class="img-thumbnail" style="max-width:50px;">`);
+							showSuccess();
+						} else {
+							alert(res.error || 'Update failed');
+							$el.html(`<img src="${currentThumbUrl}" alt="" class="img-thumbnail" style="max-width:50px;">`);
+							$el.data('image', currentImagePath);
+						}
+					},
+					error: function () {
+						alert('Update failed');
+						$el.html(`<img src="${currentThumbUrl}" alt="" class="img-thumbnail" style="max-width:50px;">`);
+						$el.data('image', currentImagePath);
+					}
+				});
+			}
+
+			const observer = new MutationObserver(finalizeImage);
+			observer.observe($input[0], { attributes: true, attributeFilter: ['value'] });
+
+			setTimeout(() => {
+				$('#' + anchorId).trigger('click');
+			}, 50);
+		}	
+
+		function handlePriceEdit($el, id, fullText) {
+			let priceValue = '', specialValue = '';
+
+			if ($el.find('.text-danger').length) {
+				priceValue = $el.find('span').first().text().replace(/[^\d.]/g, '');
+				specialValue = $el.find('.text-danger').first().text().replace(/[^\d.]/g, '');
+			} else {
+				priceValue = fullText.replace(/[^\d.]/g, '');
+			}
+
+			$el.empty();
+			const $price = $('<input>', { 
+				type: 'number', 
+				value: priceValue, 
+				class: 'form-control form-control-sm mb-1', 
+				step: 'any', 
+				placeholder: 'Price' 
+			});
+			const $special = $('<input>', { 
+				type: 'number', 
+				value: specialValue, 
+				class: 'form-control form-control-sm', 
+				step: 'any', 
+				placeholder: 'Discount' 
+			});
+			const $container = $('<div>').addClass('price-edit-container');
+			$container.append($price, $special);
+			$el.append($container).addClass('editing-active');
+			$price.focus();
+
+			let isSaving = false;
+
+			const save = () => {
+				if (isSaving) return;
+				isSaving = true;
+
+				const newPrice = $.trim($price.val());
+				const newSpecial = $.trim($special.val());
+
+				if (newPrice === priceValue && newSpecial === specialValue) {
+					renderPrice($el, priceValue, specialValue);
+					cleanup();
+					return;
+				}
+
+				$.ajax({
+					url: editUrl,
+					method: 'POST',
+					contentType: 'application/json',
+					data: JSON.stringify({ id, field: 'price', value: newPrice, special: newSpecial }),
+					success: (res) => {
+						if (res.success) {
+							renderPrice($el, newPrice, newSpecial);
+							showSuccess();
+						} else {
+							renderPrice($el, priceValue, specialValue);
+							alert(res.error || 'Update failed');
+						}
+						cleanup();
+					},
+					error: () => {
+						renderPrice($el, priceValue, specialValue);
+						alert('Update failed');
+						cleanup();
+					}
+				});
+			};
+
+			const cleanup = () => {
+				isSaving = false;
+				$(document).off('mousedown.price-edit');
+				$el.removeClass('editing-active');
+			};
+
+			$price.add($special).on('keydown', (e) => {
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					save();
+				} else if (e.key === 'Escape') {
+					renderPrice($el, priceValue, specialValue);
+					cleanup();
+				}
+			});
+
+			let blurTimer;
+			$price.add($special).on('blur', (e) => {
+				clearTimeout(blurTimer);
+				
+				blurTimer = setTimeout(() => {
+					const priceFocused = $price.is(':focus');
+					const specialFocused = $special.is(':focus');
+					
+					if (!$el.hasClass('editing-active')) return;
+					if (!priceFocused && !specialFocused) {
+						save();
+					}
+				}, 150);
+			});
+
+			$(document).on('mousedown.price-edit', (e) => {
+				if (!$el.is(e.target) && 
+					!$el.has(e.target).length && 
+					!$(e.target).closest('.price-edit-container').length) {
+					save();
+				}
+			});
+		}
+
+		function renderPrice($el, price, special) {
+			$el.empty();
+			if (special && special !== '') {
+				$el.html(`<span style="text-decoration:line-through;">$${price}</span><br><div class="text-danger">$${special}</div>`);
+			} else {
+				$el.text(`$${price}`);
+			}
+		}
+
+		function handleManufacturerEdit($el, id, oldValue) {
+	        const $input = $('<input>', { type: 'text', value: oldValue, class: 'form-control form-control-sm', autocomplete: 'off', placeholder: 'Type to search...' });
+	        const $hidden = $('<input>', { type: 'hidden' });
+	        const $dropdown = $('<ul>', { class: 'dropdown-menu', css: { display: 'none', position: 'absolute', zIndex: 1000, width: '100%', maxHeight: '200px', overflowY: 'auto' } });
+	
+	        $el.css('position', 'relative').empty().append($input, $hidden, $dropdown);
+	        $input.focus();
+	
+	        let isSaving = false;
+	
+	        const save = () => {
+	            if (isSaving) return;
+	            isSaving = true;
+	
+	            $.ajax({
+	                url: editUrl,
+	                method: 'POST',
+	                contentType: 'application/json',
+	                data: JSON.stringify({ id, field: 'manufacturer_id', value: $hidden.val() }),
+	                success: (res) => {
+	                    $el.text(res.success ? $input.val() : oldValue);
+	                    if (res.success) {
+	                        showSuccess();
+	                    } else {
+	                        alert(res.error || 'Update failed');
+	                    }
+	                    cleanup();
+	                },
+	                error: () => {
+	                    $el.text(oldValue);
+	                    alert('Update failed');
+	                    cleanup();
+	                }
+	            });
+	        };
+	
+	        const cleanup = () => {
+	            isSaving = false;
+	            $dropdown.hide();
+	            $(document).off('mousedown.manufacturer-edit');
+	            $el.removeClass('editing-active');
+	        };
+	
+	        const load = (query = '') => {
+	            $.getJSON(`index.php?route=catalog/manufacturer.autocomplete&user_token={{ user_token }}&filter_name=${encodeURIComponent(query)}`)
+	                .done(data => {
+	                    $dropdown.empty().append(`<li><a href="#" class="dropdown-item" data-id="0" data-name="">--- None ---</a></li>`);
+	                    data.forEach(m => $dropdown.append(`<li><a href="#" class="dropdown-item" data-id="${m.manufacturer_id}" data-name="${m.name.replace(/"/g, '&quot;')}">${m.name}</a></li>`));
+	                    $dropdown.show();
+	                })
+	                .fail(() => {
+	                    $dropdown.html('<li><a class="dropdown-item text-danger">Error loading</a></li>').show();
+	                });
+	        };
+	
+	        $dropdown.on('click', 'a.dropdown-item', (e) => {
+	            e.preventDefault();
+	            const $a = $(e.target).closest('a');
+	            $hidden.val($a.data('id'));
+	            $input.val($a.data('name'));
+	            save();
+	        });
+	
+	        let timer;
+	        $input.on('input', () => {
+	            clearTimeout(timer);
+	            timer = setTimeout(() => load($input.val()), 300);
+	        });
+	
+	        $input.on('keydown', (e) => {
+	            if (e.key === 'Enter') {
+	                e.preventDefault();
+	                $dropdown.hide();
+	                save();
+	            } else if (e.key === 'Escape') {
+	                $el.text(oldValue);
+	                cleanup();
+	            }
+	        });
+	
+	        $input.on('blur', () => {
+	            setTimeout(() => {
+	                if (!$el.hasClass('editing-active')) return;
+	                if ($dropdown.is(':visible')) return; 
+	                save();
+	            }, 200);
+	        });
+	
+	        $(document).on('mousedown.manufacturer-edit', (e) => {
+	            if (!$el.is(e.target) && $el.has(e.target).length === 0) {
+	                save();
+	            }
+	        });
+	
+	        load();
+	    }
+
+		function handleGenericEdit($el, id, field, oldValue) {
+			const isNumeric = ['quantity'].includes(field);
+			
+			const originalValue = field === 'quantity' ? oldValue.replace(/\D/g, '') : oldValue;
+			
+			const $input = $('<input>', {
+				type: isNumeric ? 'number' : 'text',
+				value: originalValue,
+				class: 'form-control form-control-sm'
+			});
+
+			$el.empty().append($input).addClass('editing-active');
+			$input.focus();
+
+			let isSaving = false;
+
+			const save = () => {
+				if (isSaving) return;
+				isSaving = true;
+
+				const newValue = $.trim($input.val());
+				if (newValue === originalValue) {
+					if (field === 'quantity') {
+						renderQuantity($el, originalValue);
+					} else {
+						$el.text(oldValue);
+					}
+					cleanup();
+					return;
+				}
+
+				$.ajax({
+					url: editUrl,
+					method: 'POST',
+					contentType: 'application/json',
+					data: JSON.stringify({ id, field, value: newValue }),
+					success: (res) => {
+						if (res.success) {
+							if (field === 'quantity') {
+								renderQuantity($el, newValue);
+							} else {
+								$el.text(newValue);
+							}
+							showSuccess();
+						} else {
+							if (field === 'quantity') {
+								renderQuantity($el, originalValue);
+							} else {
+								$el.text(oldValue);
+							}
+							alert(res.error || 'Update failed');
+						}
+						cleanup();
+					},
+					error: () => {
+						if (field === 'quantity') {
+							renderQuantity($el, originalValue);
+						} else {
+							$el.text(oldValue);
+						}
+						alert('Update failed');
+						cleanup();
+					}
+				});
+			};
+
+			const cleanup = () => {
+				isSaving = false;
+				$(document).off('mousedown.generic-edit');
+				$el.removeClass('editing-active');
+			};
+
+			$input.on('keydown', (e) => {
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					save();
+				} else if (e.key === 'Escape') {
+					if (field === 'quantity') {
+						renderQuantity($el, originalValue);
+					} else {
+						$el.text(oldValue);
+					}
+					cleanup();
+				}
+			});
+
+			$input.on('blur', () => {
+				setTimeout(() => {
+					if (!$el.hasClass('editing-active')) return;
+					save();
+				}, 150);
+			});
+
+			$(document).on('mousedown.generic-edit', (e) => {
+				if (!$el.is(e.target) && $el.has(e.target).length === 0) {
+					save();
+				}
+			});
+
+			function renderQuantity($element, quantity) {
+				const qty = parseInt(quantity) || 0;
+				let badgeClass = 'badge bg-success';
+
+				if (qty <= 0) {
+					badgeClass = 'badge bg-warning';
+				} else if (qty <= 5) {
+					badgeClass = 'badge bg-danger';
+				}
+
+				$element.html(`<span class="${badgeClass}">${qty}</span>`);
+			}
+		}
+
+		function handleDateEdit($el, id) {
+			const oldDateAdded = $el.data('date-added');
+			const oldDateModified = $el.data('date-modified');
+
+			$el.empty();
+			const $dateAddedInput = $('<input>', {
+				type: 'datetime-local',
+				value: convertToDateTimeLocal(oldDateAdded),
+				class: 'form-control form-control-sm mb-1',
+				placeholder: 'Date Added'
+			});
+			const $dateModifiedInput = $('<input>', {
+				type: 'datetime-local',
+				value: convertToDateTimeLocal(oldDateModified),
+				class: 'form-control form-control-sm',
+				placeholder: 'Date Modified'
+			});
+			const $container = $('<div>').addClass('date-edit-container');
+			$container.append($dateAddedInput, $dateModifiedInput);
+			$el.append($container).addClass('editing-active');
+			$dateAddedInput.focus();
+
+			let isSaving = false;
+
+			const save = () => {
+				if (isSaving) return;
+				isSaving = true;
+
+				const newDateAdded = $dateAddedInput.val();
+				const newDateModified = $dateModifiedInput.val();
+
+				if (newDateAdded === convertToDateTimeLocal(oldDateAdded) && newDateModified === convertToDateTimeLocal(oldDateModified)) {
+					renderDate($el, oldDateAdded, oldDateModified);
+					cleanup();
+					return;
+				}
+
+				$.ajax({
+					url: editUrl,
+					method: 'POST',
+					contentType: 'application/json',
+					data: JSON.stringify({ id, field: 'date', value: { date_added: newDateAdded, date_modified: newDateModified } }),
+					success: (res) => {
+						if (res.success) {
+							renderDate($el, newDateAdded, newDateModified);
+							showSuccess();
+						} else {
+							renderDate($el, oldDateAdded, oldDateModified);
+							alert(res.error || 'Update failed');
+						}
+						cleanup();
+					},
+					error: () => {
+						renderDate($el, oldDateAdded, oldDateModified);
+						alert('Update failed');
+						cleanup();
+					}
+				});
+			};
+
+			const cleanup = () => {
+				isSaving = false;
+				$(document).off('mousedown.date-edit');
+				$el.removeClass('editing-active');
+			};
+
+			$dateAddedInput.add($dateModifiedInput).on('keydown', (e) => {
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					save();
+				} else if (e.key === 'Escape') {
+					renderDate($el, oldDateAdded, oldDateModified);
+					cleanup();
+				}
+			});
+
+			let blurTimer;
+			$dateAddedInput.add($dateModifiedInput).on('blur', (e) => {
+				clearTimeout(blurTimer);
+				blurTimer = setTimeout(() => {
+					const addedFocused = $dateAddedInput.is(':focus');
+					const modifiedFocused = $dateModifiedInput.is(':focus');
+					if (!$el.hasClass('editing-active')) return;
+					if (!addedFocused && !modifiedFocused) {
+						save();
+					}
+				}, 150);
+			});
+
+			$(document).on('mousedown.date-edit', (e) => {
+				if (!$el.is(e.target) && !$el.has(e.target).length && !$(e.target).closest('.date-edit-container').length) {
+					save();
+				}
+			});
+		}
+
+		function convertToDateTimeLocal(dateStr) {
+			if (!dateStr) return '';
+			const date = new Date(dateStr);
+			if (isNaN(date.getTime())) return '';
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			const hours = String(date.getHours()).padStart(2, '0');
+			const minutes = String(date.getMinutes()).padStart(2, '0');
+			return `${year}-${month}-${day}T${hours}:${minutes}`;
+		}
+
+		function formatDate(dateStr) {
+			if (!dateStr) return '';
+			const date = new Date(dateStr);
+			if (isNaN(date.getTime())) return '';
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			const year = date.getFullYear();
+			return `${month}/${day}/${year}`;
+		}
+
+		function renderDate($element, dateAdded, dateModified) {
+			const formattedAdded = formatDate(dateAdded);
+			const formattedModified = formatDate(dateModified);
+			$element.empty();
+			$element.html(`
+				<div class="p-1 fs-6 text-center" style="background: #f8f8f8;" data-original-title="${formattedAdded}" data-date-added="${dateAdded}" data-date-added-formatted="${formattedAdded}">
+					${formattedAdded}
+				</div>
+				<div class="mt-2 border border-info bg-info p-1 fs-6 text-center" data-original-title="${formattedModified}" data-date-modified="${dateModified}" data-date-modified-formatted="${formattedModified}">
+					${formattedModified}
+				</div>
+			`);
+		}
+
+		function showSuccess() {
+			$('.alert.alert-success').remove();
+			
+			const $alert = $(`<div class="alert alert-success alert-dismissible fade show" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+				<i class="fa fa-check-circle"></i> Success: You have modified products!
+				<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+			</div>`);
+			
+			$('body').append($alert);
+			
+			setTimeout(() => {
+				$alert.fadeOut(500, () => $alert.remove());
+			}, 3000);
+		}
+	});
+</script>
+{% endblock %}
